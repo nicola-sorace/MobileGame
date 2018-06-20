@@ -1,0 +1,127 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://sprites/rocket.png" type="Texture" id=1]
+[ext_resource path="res://sprites/rocket_N.png" type="Texture" id=2]
+[ext_resource path="res://sprites/light.png" type="Texture" id=3]
+[ext_resource path="res://effects/fire_grad.tres" type="Material" id=4]
+
+[sub_resource type="GDScript" id=1]
+
+script/source = "extends RigidBody2D
+
+var speed = 500
+
+var explosion = preload(\"res://effects/Explosion.tscn\")
+
+func _integrate_forces(state):
+	for c in state.get_contact_count():
+		explode()
+		break
+
+func setup(source, dir):
+	if dir.length()==0:
+		queue_free()
+	else:
+		add_collision_exception_with(source)
+		set_position(source.get_position())
+		set_rotation(dir.angle())
+		set_linear_velocity(dir.normalized()*speed)
+
+func explode():
+	var tmp = explosion.instance()
+	tmp.set_position(get_position())
+	get_parent().add_child(tmp)
+	queue_free()"
+
+[sub_resource type="CapsuleShape2D" id=2]
+
+custom_solver_bias = 0.0
+radius = 15.0
+height = 50.0
+
+[node name="Rocket" type="RigidBody2D"]
+
+input_pickable = false
+collision_layer = 2
+collision_mask = 1
+mode = 0
+mass = 1.0
+friction = 1.0
+bounce = 0.0
+gravity_scale = 0.0
+custom_integrator = false
+continuous_cd = 0
+contacts_reported = 2
+contact_monitor = true
+sleeping = false
+can_sleep = true
+linear_velocity = Vector2( 0, 0 )
+linear_damp = -1.0
+angular_velocity = 0.0
+angular_damp = -1.0
+script = SubResource( 1 )
+_sections_unfolded = [ "Collision" ]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." index="0"]
+
+rotation = 1.5708
+shape = SubResource( 2 )
+_sections_unfolded = [ "Transform" ]
+
+[node name="Sprite" type="Sprite" parent="." index="1"]
+
+texture = ExtResource( 1 )
+normal_map = ExtResource( 2 )
+
+[node name="Light2D" type="Light2D" parent="." index="2"]
+
+position = Vector2( -40, 0 )
+enabled = true
+editor_only = false
+texture = ExtResource( 3 )
+offset = Vector2( 0, 0 )
+texture_scale = 1.0
+color = Color( 1, 0.304688, 0, 1 )
+energy = 2.0
+mode = 0
+range_height = 20.0
+range_z_min = -1024
+range_z_max = 1024
+range_layer_min = 0
+range_layer_max = 0
+range_item_cull_mask = 3
+shadow_enabled = false
+shadow_color = Color( 0, 0, 0, 0 )
+shadow_buffer_size = 2048
+shadow_gradient_length = 0.0
+shadow_filter = 0
+shadow_filter_smooth = 0.0
+shadow_item_cull_mask = 1
+_sections_unfolded = [ "Range", "Transform", "Visibility" ]
+
+[node name="Particles2D" type="Particles2D" parent="." index="3"]
+
+light_mask = 0
+position = Vector2( -35, 0 )
+rotation = 3.14159
+emitting = true
+amount = 200
+lifetime = 1.0
+one_shot = false
+preprocess = 0.0
+speed_scale = 1.0
+explosiveness = 0.0
+randomness = 1.0
+fixed_fps = 0
+fract_delta = true
+visibility_rect = Rect2( -100, -100, 200, 200 )
+local_coords = true
+draw_order = 0
+process_material = ExtResource( 4 )
+texture = null
+normal_map = null
+h_frames = 1
+v_frames = 1
+_sections_unfolded = [ "Process Material", "Time", "Transform", "Visibility" ]
+
+
